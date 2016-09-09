@@ -1,5 +1,7 @@
 require "activerecord_sans_rails/version"
 
 module ActiverecordSansRails
-  # Your code goes here...
+  def self.root
+    File.dirname __dir__
+  end
 end
