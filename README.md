@@ -1,8 +1,9 @@
 # ActiverecordSansRails
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/activerecord_sans_rails`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem makes it easier to install rake task needed to use activerecord in your non-rails project.
 
-TODO: Delete this and the text above, and describe your gem
+It's mainly a gemified and slightly improved (added a way to pass different envs) version of a
+[gist](https://gist.github.com/schickling/6762581) I found online.
 
 ## Installation
 
@@ -22,7 +23,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add the following code in your app's Rakefile:
+
+```ruby
+require 'activerecord_sans_rails'
+
+ActiverecordSansRails::load_rake_tasks
+```
 
 ## Development
 
@@ -33,7 +40,6 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/activerecord_sans_rails. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
 
 ## License
 
