@@ -9,8 +9,10 @@ namespace :db do
 
   desc "Create the database"
   task :create => :environment do
-    ActiveRecord::Base.establish_connection(ActiverecordSansRails.db_config_admin)
-    ActiveRecord::Base.connection.create_database(ActiverecordSansRails.db_config["database"])
+    db_admin = ActiverecordSansRails.db_config_admin
+    db_admin.delete( 'database' ) # DB doesn't exist yet.
+    ActiveRecord::Base.establish_connection( db_admin )
+    ActiveRecord::Base.connection.create_database( ActiverecordSansRails.db_config["database"] )
     puts "Database created."
   end
 
