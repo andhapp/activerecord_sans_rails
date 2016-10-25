@@ -1,6 +1,6 @@
 # ActiverecordSansRails (Deprecated)
 
-Please have a look at [standard_migrations](https://github.com/thuss/standalone-migrations) gem instead. Thanks.
+** Please have a look at [standalone_migrations](https://github.com/thuss/standalone-migrations) gem instead. Thanks. **
 
 This gem makes it easier to install rake task needed to use activerecord in your non-rails project.
 
