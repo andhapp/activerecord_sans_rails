@@ -1,35 +1,33 @@
-require "yaml"
 require "active_record"
 
 namespace :db do
 
   task :environment do
-    APP_ENV = ENV['APP_ENV'] || 'development'
-    ActiverecordSansRails::DB_DIR = "#{Rake.application.original_dir}/db"
-    ActiverecordSansRails::DB_CONFIG_PATH = "#{Rake.application.original_dir}/config/database.yml"
-    ActiverecordSansRails::DB_CONFIG = YAML::load(File.open(ActiverecordSansRails::DB_CONFIG_PATH))[APP_ENV]
-    ActiverecordSansRails::DB_CONFIG_ADMIN = ActiverecordSansRails::DB_CONFIG.merge({'database' => 'postgres', 'schema_search_path' => 'public'})
+    env = ENV['APP_ENV'] || 'development'
+    ActiverecordSansRails.load_environment( Rake.application.original_dir, env )
   end
 
   desc "Create the database"
   task :create => :environment do
-    ActiveRecord::Base.establish_connection(ActiverecordSansRails::DB_CONFIG_ADMIN)
-    ActiveRecord::Base.connection.create_database(ActiverecordSansRails::DB_CONFIG["database"])
+    db_admin = ActiverecordSansRails.db_config_admin
+    db_admin.delete( 'database' ) # DB doesn't exist yet.
+    ActiveRecord::Base.establish_connection( db_admin )
+    ActiveRecord::Base.connection.create_database( ActiverecordSansRails.db_config["database"] )
     puts "Database created."
   end
 
   desc "Migrate the database"
   task :migrate => :environment do
-    ActiveRecord::Base.establish_connection(ActiverecordSansRails::DB_CONFIG)
-    ActiveRecord::Migrator.migrate("#{ActiverecordSansRails::DB_DIR}/migrate/")
+    ActiveRecord::Base.establish_connection(ActiverecordSansRails.db_config)
+    ActiveRecord::Migrator.migrate("#{ActiverecordSansRails.db_dir}/migrate/")
     Rake::Task["db:schema"].invoke
     puts "Database migrated."
   end
 
   desc "Drop the database"
   task :drop => :environment do
-    ActiveRecord::Base.establish_connection(ActiverecordSansRails::DB_CONFIG_ADMIN)
-    ActiveRecord::Base.connection.drop_database(ActiverecordSansRails::DB_CONFIG["database"])
+    ActiveRecord::Base.establish_connection(ActiverecordSansRails.db_config_admin)
+    ActiveRecord::Base.connection.drop_database(ActiverecordSansRails.db_config["database"])
     puts "Database deleted."
   end
 
@@ -38,9 +36,9 @@ namespace :db do
 
   desc 'Create a db/schema.rb file that is portable against any DB supported by AR'
   task :schema => :environment do
-    ActiveRecord::Base.establish_connection(ActiverecordSansRails::DB_CONFIG)
+    ActiveRecord::Base.establish_connection(ActiverecordSansRails.db_config)
     require 'active_record/schema_dumper'
-    filename = "#{ActiverecordSansRails::DB_DIR}/schema.rb"
+    filename = "#{ActiverecordSansRails.db_dir}/schema.rb"
     File.open(filename, "w:utf-8") do |file|
       ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
     end
@@ -53,7 +51,7 @@ namespace :g do
   task :migration => :"db:environment" do
     name = ARGV[1] || raise("Specify name: rake g:migration your_migration")
     timestamp = Time.now.strftime("%Y%m%d%H%M%S")
-    path = File.expand_path("#{ActiverecordSansRails::DB_DIR}/migrate/#{timestamp}_#{name}.rb", __FILE__)
+    path = File.expand_path("#{ActiverecordSansRails.db_dir}/migrate/#{timestamp}_#{name}.rb", __FILE__)
 
     migration_class = name.split("_").map(&:capitalize).join
 
